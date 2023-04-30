@@ -1,4 +1,4 @@
-package main
+package common
 
 import (
 	"fmt"
@@ -7,11 +7,12 @@ import (
 	"runtime"
 
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 )
 
 var (
 	_, b, _, _ = runtime.Caller(0)
-	basepath   = filepath.Dir(b)
+	basepath   = filepath.Dir(filepath.Dir(b))
 )
 
 type dbConfig struct {
@@ -19,14 +20,15 @@ type dbConfig struct {
 	ConnectionString string
 }
 
-type appConfiguration struct {
-	DB   dbConfig
-	Port uint32
+type AppConfiguration struct {
+	DB     dbConfig
+	Port   uint32
+	Logger *zap.SugaredLogger
 }
 
-var appConfigMap *appConfiguration
+var appConfigMap *AppConfiguration
 
-func GetConfiguration() *appConfiguration {
+func GetConfiguration() *AppConfiguration {
 	if appConfigMap == nil {
 		LoadConfiguration()
 	}
@@ -65,9 +67,10 @@ func LoadConfiguration() {
 		ConnectionString: connectionString,
 	}
 
-	appConfigStruct := appConfiguration{
-		DB:   dbStruct,
-		Port: agentPort,
+	appConfigStruct := AppConfiguration{
+		DB:     dbStruct,
+		Port:   agentPort,
+		Logger: initLogger(),
 	}
 
 	appConfigMap = &appConfigStruct

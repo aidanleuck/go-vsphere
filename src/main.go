@@ -3,38 +3,37 @@ package main
 import (
 	"context"
 	"fmt"
+	"vsphere_module/src/common"
+	"vsphere_module/src/queue"
+	"vsphere_module/src/routes"
 
-	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type agentService struct {
-	config *appConfiguration
-	queue  Queue
-}
-
 func main() {
 
-	appConfig := GetConfiguration()
+	appConfig := common.GetConfiguration()
 
-	mongoConnection, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(appConfig.DB.ConnectionString))
-	service := &agentService{
-		queue: QueueModel{DB: mongoConnection},
+	mongoConnection, err := mongo.Connect(context.Background(), options.Client().ApplyURI(appConfig.DB.ConnectionString))
+
+	if err != nil {
+		panic(err)
 	}
 
-	service.queue.GetAll()
+	service := &common.AgentService{
+		Config: appConfig,
+		Queue:  &queue.QueueModel{DB: mongoConnection},
+	}
+	_ = service.Queue.ClaimJob()
 
-	router := gin.Default()
-	hostEndpoint := fmt.Sprintf("localhost:%d", appConfig.Port)
-	println("Hosting agent at", hostEndpoint)
+	router := routes.SetupRouter(service)
 
-	router.GET("/job", GetJobs)
-	router.POST("/job", AddJob)
-
+	hostEndpoint := fmt.Sprintf("localhost:%d", service.Config.Port)
+	appConfig.Logger.Info("Hosting agent at", "url", hostEndpoint)
 	routerErr := router.Run(hostEndpoint)
 	if routerErr != nil {
-		panic(fmt.Errorf("fatal error starting router: %w", err))
+		panic(fmt.Errorf("fatal error starting router: %w", routerErr))
 	}
 
 }
