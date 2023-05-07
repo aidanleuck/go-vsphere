@@ -20,7 +20,13 @@ type dbConfig struct {
 	ConnectionString string
 }
 
+type LanierConfig struct {
+	User     string
+	Password string
+}
+
 type AppConfiguration struct {
+	Lanier LanierConfig
 	DB     dbConfig
 	Port   uint32
 	Logger *zap.SugaredLogger
@@ -48,6 +54,9 @@ func LoadConfiguration() {
 	viper.BindEnv("DB_PASSWORD")
 	viper.BindEnv("DB_PORT")
 	viper.BindEnv("PORT")
+	viper.BindEnv("USERNAME")
+	viper.BindEnv("PASSWORD")
+	viper.BindEnv("URL")
 
 	err := viper.ReadInConfig() // Find and read the config file
 	if err != nil {             // Handle errors reading the config file
@@ -59,9 +68,15 @@ func LoadConfiguration() {
 	dbUser := viper.GetString("DB_USER")
 	dbPassword := viper.GetString("DB_PASSWORD")
 	agentPort := viper.GetUint32("PORT")
+	vsphereLogin := viper.GetString("USERNAME")
+	vspherePassword := viper.GetString("PASSWORD")
 
 	connectionString := fmt.Sprintf("mongodb://%s:%s@%s:%d", dbUser, dbPassword, dbHost, dbPortConfig)
 
+	lanierConfig := LanierConfig{
+		User:     vsphereLogin,
+		Password: vspherePassword,
+	}
 	dbStruct := dbConfig{
 		DBPort:           dbPortConfig,
 		ConnectionString: connectionString,
@@ -69,6 +84,7 @@ func LoadConfiguration() {
 
 	appConfigStruct := AppConfiguration{
 		DB:     dbStruct,
+		Lanier: lanierConfig,
 		Port:   agentPort,
 		Logger: initLogger(),
 	}

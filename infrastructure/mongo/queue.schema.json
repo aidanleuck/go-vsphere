@@ -1,0 +1,43 @@
+{
+    $jsonSchema: {
+      required: [
+        'BranchName',
+        'TotalVM',
+        'RemainingVM',
+        'Status',
+        'Product',
+        'BuildNumber'
+      ],
+      properties: {
+        BranchName: {
+          bsonType: 'string',
+          description: 'must be a string and is required'
+        },
+        TotalVM: {
+          bsonType: 'long',
+          description: 'must be an integer and is required'
+        },
+        RemainingVM: {
+          bsonType: 'long',
+          description: 'must be an integer and is required'
+        },
+        Status: {
+          bsonType: 'string',
+          description: 'must be an string and is required',
+          'enum': [
+            'Waiting',
+            'Fulfilled',
+            'Running'
+          ]
+        },
+        Product: {
+          bsonType: 'string',
+          description: 'must be a string and is required'
+        },
+        BuildNumber: {
+          bsonType: 'long',
+          description: 'must be an integer and is required'
+        }
+      }
+    }
+  }

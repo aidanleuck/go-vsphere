@@ -25,12 +25,10 @@ func main() {
 		Config: appConfig,
 		Queue:  &queue.QueueModel{DB: mongoConnection},
 	}
-	_ = service.Queue.ClaimJob()
 
 	router := routes.SetupRouter(service)
-
 	hostEndpoint := fmt.Sprintf("localhost:%d", service.Config.Port)
-	appConfig.Logger.Info("Hosting agent at", "url", hostEndpoint)
+	appConfig.Logger.Infow("Hosting agent at", "url", hostEndpoint)
 	routerErr := router.Run(hostEndpoint)
 	if routerErr != nil {
 		panic(fmt.Errorf("fatal error starting router: %w", routerErr))

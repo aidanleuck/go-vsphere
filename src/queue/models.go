@@ -1,34 +1,19 @@
 package queue
 
-import "go.mongodb.org/mongo-driver/mongo"
+import (
+	"vsphere_module/src/graph/model"
 
-type JobStatus string
-
-const (
-	Waiting   JobStatus = "Waiting"
-	Resources JobStatus = "Not Enough Resources"
-	Fulfilled JobStatus = "Fulfilled"
+	"go.mongodb.org/mongo-driver/mongo"
 )
-
-type Job struct {
-	JobID       string    `bson:"JobID"`
-	BranchName  string    `bson:"BranchName"`
-	BuildNumber uint64    `bson:"BuildNumber"`
-	Product     string    `bson:"Product"`
-	TotalVM     uint64    `bson:"TotalVM"`
-	RemainingVM uint64    `bson:"RemainingVM"`
-	Status      JobStatus `bson:"Status"`
-	Priority    int       `bson:"Priority"`
-}
 
 type QueueModel struct {
 	DB *mongo.Client
 }
 type Queue interface {
-	GetAllJobs() *[]Job
-	AddJob(*Job)
-	ClaimJob() *Job
-	FinishJob(*Job)
-	GetJobsByStatus(*Job)
-	GetJob(string) (*Job, error)
+	GetAllJobs() ([]*model.Job, error)
+	AddJob(*model.JobInput) (*string, error)
+	ClaimJob() (*model.Job, error)
+	FinishJob(jobID string) (*model.Job, error)
+	GetJobsByStatus(status model.JobStatus) ([]*model.Job, error)
+	GetJob(string) (*model.Job, error)
 }

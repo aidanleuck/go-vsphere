@@ -8,6 +8,6 @@ import (
 
 func SetupRouter(srv *common.AgentService) *gin.Engine {
 	router := gin.Default()
-	setupQueueRouter(router, srv)
+	SetupGraphQLRouter(router, srv)
 	return router
 }

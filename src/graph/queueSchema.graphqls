@@ -1,0 +1,53 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+enum JobStatus{
+	NEW
+	CREATING
+	NOT_ENOUGH_RESOURCES
+	FULFILLED
+}
+enum VMStatus{
+	NOT_CREATED
+	CREATED
+}
+
+type Job{
+	JobID:		String!
+	BranchName:  String!
+	BuildNumber: Int!    
+	Product:     String! 
+	TotalVM:     Int! 
+	RemainingVM: Int! 
+	Status:      JobStatus!
+	Priority:    Int!
+}
+
+input JobInput{
+	BranchName:  String!
+	BuildNumber: Int!    
+	Product:     String! 
+	TotalVM:     Int! 
+	Priority:    Int
+}
+
+type VM{
+	ID: String!
+	Name: String!
+	Labels: [String]!
+	Status: VMStatus!
+}
+
+type Mutation{
+	createJob(input: JobInput): String!
+	finishJob(input: String!): Job!
+}
+
+type Query{
+	getJob(jobID: String!): Job
+	getJobs: [Job!]
+	getJobsByStatus(status: JobStatus!): [Job!]
+}
+
+
