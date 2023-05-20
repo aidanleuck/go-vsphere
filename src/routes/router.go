@@ -1,12 +1,12 @@
 package routes
 
 import (
-	"vsphere_module/src/common"
+	"vsphere_module/src/service"
 
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(srv *common.AgentService) *gin.Engine {
+func SetupRouter(srv *service.AgentService) *gin.Engine {
 	router := gin.Default()
 	SetupGraphQLRouter(router, srv)
 	return router

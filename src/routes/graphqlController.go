@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"vsphere_module/src/common"
 	"vsphere_module/src/graph"
+	"vsphere_module/src/service"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -19,7 +19,7 @@ func playgroundHandler() gin.HandlerFunc {
 }
 
 // Defining the Graphql handler
-func graphqlHandler(srv *common.AgentService) gin.HandlerFunc {
+func graphqlHandler(srv *service.AgentService) gin.HandlerFunc {
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
 	h := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{Service: srv}}))

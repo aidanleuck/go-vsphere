@@ -2,12 +2,13 @@ package common
 
 import (
 	"fmt"
+	"log"
+	"net/url"
 	"path"
 	"path/filepath"
 	"runtime"
 
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
 )
 
 var (
@@ -21,6 +22,7 @@ type dbConfig struct {
 }
 
 type LanierConfig struct {
+	URL      url.URL
 	User     string
 	Password string
 }
@@ -29,7 +31,6 @@ type AppConfiguration struct {
 	Lanier LanierConfig
 	DB     dbConfig
 	Port   uint32
-	Logger *zap.SugaredLogger
 }
 
 var appConfigMap *AppConfiguration
@@ -70,10 +71,19 @@ func LoadConfiguration() {
 	agentPort := viper.GetUint32("PORT")
 	vsphereLogin := viper.GetString("USERNAME")
 	vspherePassword := viper.GetString("PASSWORD")
+	vsphereURLString := viper.GetString("URL")
+
+	vsphereUrlFullString := fmt.Sprintf("https://%s:%s@%s/sdk", vsphereLogin, vspherePassword, vsphereURLString)
+
+	vsphereUri, err := url.Parse(vsphereUrlFullString)
+	if err != nil {
+		log.Fatalf("vSphere URL is invalid!")
+	}
 
 	connectionString := fmt.Sprintf("mongodb://%s:%s@%s:%d", dbUser, dbPassword, dbHost, dbPortConfig)
 
 	lanierConfig := LanierConfig{
+		URL:      *vsphereUri,
 		User:     vsphereLogin,
 		Password: vspherePassword,
 	}
@@ -86,7 +96,6 @@ func LoadConfiguration() {
 		DB:     dbStruct,
 		Lanier: lanierConfig,
 		Port:   agentPort,
-		Logger: initLogger(),
 	}
 
 	appConfigMap = &appConfigStruct
